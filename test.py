@@ -2,7 +2,7 @@ import os
 import sys
 import unittest
 
-from what import What, WhatError
+from what import What, EOF, Timeout, UnexpectedExit
 
 
 class WhatTestCase(unittest.TestCase):
@@ -14,11 +14,11 @@ class WhatTestCase(unittest.TestCase):
 
     def test_str_wrong(self):
         w = run_program('asdf', 0, '', 0)
-        self.assertRaises(WhatError, w.expect, 'x', 1)
+        self.assertRaises(EOF, w.expect, 'x', 1)
 
     def test_str_timeout(self):
         w = run_program('', 1, 'zxcv', 0)
-        self.assertRaises(WhatError, w.expect, 'zxcv', 0.1)
+        self.assertRaises(Timeout, w.expect, 'zxcv', 0.1)
         w.expect('zxcv', 2)
 
     def test_exit(self):
@@ -27,11 +27,11 @@ class WhatTestCase(unittest.TestCase):
 
     def test_exit_wrong(self):
         w = run_program('', 0, '', 2)
-        self.assertRaises(WhatError, w.expect_exit, 0, 1)
+        self.assertRaises(UnexpectedExit, w.expect_exit, 0, 1)
 
     def test_exit_timeout(self):
         w = run_program('', 1, '', 0)
-        self.assertRaises(WhatError, w.expect_exit, 0, 0.1)
+        self.assertRaises(Timeout, w.expect_exit, 0, 0.1)
         w.expect_exit(0, 2)
 
 

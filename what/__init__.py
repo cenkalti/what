@@ -4,16 +4,27 @@ from Queue import Queue, Empty
 from subprocess import Popen, PIPE, STDOUT
 
 from ringbuffer import RingBuffer
+from exceptions import Timeout, EOF, UnexpectedExit
 
-__version__ = '0.3.0'
+__version__ = '0.4.0'
 
 
 class What(Popen):
-    """Adapted from: http://stackoverflow.com/a/4896288/242451"""
+    """
+    Wrapper around subprocess.Popen that has additional methods for checking
+    process output and return code.
 
+    Inspired by the solution from J.F. Sebastian.
+    Source: http://stackoverflow.com/a/4896288/242451
+
+    """
     BUFFER_SIZE = 100
 
     def __init__(self, *args, **kwargs):
+        """
+        Both args and kwargs will be passed to Popen constructor.
+
+        """
         kwargs['stdout'] = PIPE
         kwargs['stderr'] = STDOUT
         kwargs['bufsize'] = 0
@@ -26,14 +37,15 @@ class What(Popen):
         self.reader.daemon = True
         self.reader.start()
 
-    def _enqueue_output(self):
-        for line in iter(self.stdout.readline, b''):
-            line = line.rstrip('\n')
-            self.queue.put(line)
-            self.lines.append(line)
-        self.stdout.close()
-
     def expect(self, string, timeout=None):
+        """
+        Expect a string in output. If timeout is given and expected string
+        is not found before timeout Timeout will be raised. If end of the file
+        is reached while waiting for string EOF will be raised.
+
+        If timeout is None, self.timeout is going to be used as a value.
+
+        """
         if timeout is None:
             timeout = self.timeout
 
@@ -42,12 +54,20 @@ class What(Popen):
             while 1:
                 passed = time() - start
                 line = self.queue.get(timeout=timeout - passed)
+                if line is EOF:
+                    raise EOF(self, string)
                 if string in line:
                     return line
         except Empty:
-            raise WhatError(self, string)
+            raise Timeout(self, string)
 
     def expect_exit(self, exit_code=None, timeout=None):
+        """
+        Expect process to exit with specified exit code.
+
+        If timeout is None, self.timeout is going to be used as a value.
+
+        """
         if timeout is None:
             timeout = self.timeout
 
@@ -58,29 +78,22 @@ class What(Popen):
                 break
             passed = time() - start
             if passed > timeout:
-                raise WhatError(self, exit_code)
+                raise Timeout(self, exit_code)
 
         if exit_code is not None and returncode != exit_code:
-            raise WhatError(self, exit_code)
+            raise UnexpectedExit(self, exit_code)
 
         self.wait()
 
+    def get_output(self):
+        """Return lines read in the read buffer."""
+        return '\n'.join(self.lines)
 
-class WhatError(Exception):
-
-    def __init__(self, what_object, expectation):
-        super(WhatError, self).__init__(what_object, expectation)
-        self.what = what_object
-        self.expectation = expectation
-        self.lines = list(what_object.lines)
-
-    def __str__(self):
-        return "\nExpected: %r\n" \
-               "Found: %r\n" \
-               "Last 100 lines:\n" \
-               "%s\n" \
-               "%s" % (
-               self.expectation,
-               self.what.returncode,
-               "=" * 70,
-               '\n'.join(self.lines))
+    def _enqueue_output(self):
+        """Thread target of self.reader."""
+        for line in iter(self.stdout.readline, b''):
+            line = line.rstrip('\n')
+            self.queue.put(line)
+            self.lines.append(line)
+        self.queue.put(EOF)
+        self.stdout.close()
