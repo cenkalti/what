@@ -11,6 +11,8 @@ __version__ = '0.3.0'
 class What(Popen):
     """Adapted from: http://stackoverflow.com/a/4896288/242451"""
 
+    BUFFER_SIZE = 100
+
     def __init__(self, *args, **kwargs):
         kwargs['stdout'] = PIPE
         kwargs['stderr'] = STDOUT
@@ -19,7 +21,7 @@ class What(Popen):
         super(What, self).__init__(args, **kwargs)
         self.timeout = 10
         self.queue = Queue()
-        self.lines = RingBuffer(100)
+        self.lines = RingBuffer(self.BUFFER_SIZE)
         self.reader = Thread(target=self._enqueue_output)
         self.reader.daemon = True
         self.reader.start()
