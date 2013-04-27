@@ -9,7 +9,7 @@ Installing
 
 .. code-block:: bash
 
-   $ pip install kuyruk
+   $ pip install what
 
 
 Usage
