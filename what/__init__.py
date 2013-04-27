@@ -13,7 +13,7 @@ class What(Popen):
 
     def __init__(self, *args):
         super(What, self).__init__(args, stdout=PIPE, stderr=STDOUT,
-                                   bufsize=1, close_fds=True)
+                                   bufsize=0, close_fds=True)
         self.timeout = 10
         self.queue = Queue()
         self.lines = RingBuffer(100)
