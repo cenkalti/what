@@ -65,6 +65,7 @@ class WhatError(Exception):
         super(WhatError, self).__init__(what_object, expectation)
         self.what = what_object
         self.expectation = expectation
+        self.lines = list(what_object.lines)
 
     def __str__(self):
         return "\nExpected: %r\n" \
@@ -75,4 +76,4 @@ class WhatError(Exception):
                self.expectation,
                self.what.returncode,
                "=" * 70,
-               '\n'.join(self.what.lines))
+               '\n'.join(self.lines))
