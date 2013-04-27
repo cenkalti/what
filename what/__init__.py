@@ -20,11 +20,11 @@ class What(Popen):
         self.timeout = 10
         self.queue = Queue()
         self.lines = RingBuffer(100)
-        self.reader = Thread(target=self.enqueue_output)
+        self.reader = Thread(target=self._enqueue_output)
         self.reader.daemon = True
         self.reader.start()
 
-    def enqueue_output(self):
+    def _enqueue_output(self):
         for line in iter(self.stdout.readline, b''):
             line = line.rstrip('\n')
             self.queue.put(line)
