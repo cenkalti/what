@@ -40,3 +40,7 @@ def run_program(before, sleep_seconds, after, exit_code):
         sys.executable,
         os.path.join(os.path.dirname(__file__), 'program.py'),
         before, str(sleep_seconds), after, str(exit_code))
+
+
+if __name__ == '__main__':
+    unittest.main()

@@ -3,14 +3,15 @@ from threading import Thread
 from Queue import Queue, Empty
 from subprocess import Popen, PIPE, STDOUT
 
+__version__ = '0.1.0'
+
 
 class What(Popen):
     """Adapted from: http://stackoverflow.com/a/4896288/242451"""
 
     def __init__(self, *args):
-        super(What, self).__init__(
-            args, stdout=PIPE, stderr=STDOUT,
-            bufsize=1, close_fds=True)
+        super(What, self).__init__(args, stdout=PIPE, stderr=STDOUT,
+                                   bufsize=1, close_fds=True)
         self.timeout = 10
         self.queue = Queue()
         self.reader = Thread(target=self.enqueue_output)
@@ -22,7 +23,7 @@ class What(Popen):
             self.queue.put(line)
         self.stdout.close()
 
-    def expect(self, s, timeout=None):
+    def expect(self, string, timeout=None):
         if timeout is None:
             timeout = self.timeout
 
@@ -31,12 +32,15 @@ class What(Popen):
             while 1:
                 passed = time() - start
                 line = self.queue.get(timeout=timeout - passed)
-                if s in line:
+                if string in line:
                     return line.rstrip('\n')
         except Empty:
-            raise Exception('Expected %r but not found' % s)
+            raise Exception('Expected %r but not found' % string)
 
-    def expect_exit(self, exit_code, timeout=10):
+    def expect_exit(self, exit_code, timeout=None):
+        if timeout is None:
+            timeout = self.timeout
+
         start = time()
         while 1:
             returncode = self.poll()
