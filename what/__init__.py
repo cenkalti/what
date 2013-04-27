@@ -3,6 +3,8 @@ from threading import Thread
 from Queue import Queue, Empty
 from subprocess import Popen, PIPE, STDOUT
 
+from ringbuffer import RingBuffer
+
 __version__ = '0.1.0'
 
 
@@ -14,13 +16,16 @@ class What(Popen):
                                    bufsize=1, close_fds=True)
         self.timeout = 10
         self.queue = Queue()
+        self.lines = RingBuffer(100)
         self.reader = Thread(target=self.enqueue_output)
         self.reader.daemon = True
         self.reader.start()
 
     def enqueue_output(self):
         for line in iter(self.stdout.readline, b''):
+            line = line.rstrip('\n')
             self.queue.put(line)
+            self.lines.append(line)
         self.stdout.close()
 
     def expect(self, string, timeout=None):
@@ -33,9 +38,9 @@ class What(Popen):
                 passed = time() - start
                 line = self.queue.get(timeout=timeout - passed)
                 if string in line:
-                    return line.rstrip('\n')
+                    return line
         except Empty:
-            raise Exception('Expected %r but not found' % string)
+            raise WhatError(self, string)
 
     def expect_exit(self, exit_code, timeout=None):
         if timeout is None:
@@ -48,9 +53,26 @@ class What(Popen):
                 break
             passed = time() - start
             if passed > timeout:
-                raise Exception("Timeout while waiting for exit(%r)" %
-                                exit_code)
+                raise WhatError(self, exit_code)
 
         if returncode != exit_code:
-            raise Exception('Expected exit(%i) but received exit(%i)' %
-                            (exit_code, returncode))
+            raise WhatError(self, exit_code)
+
+
+class WhatError(Exception):
+
+    def __init__(self, what_object, expectation):
+        super(WhatError, self).__init__(what_object, expectation)
+        self.what = what_object
+        self.expectation = expectation
+
+    def __str__(self):
+        return "\nExpected: %r\n" \
+               "Found: %r\n" \
+               "Last 100 lines:\n" \
+               "%s\n" \
+               "%s" % (
+               self.expectation,
+               self.what.returncode,
+               "=" * 70,
+               '\n'.join(self.what.lines))
