@@ -45,7 +45,7 @@ class What(Popen):
         except Empty:
             raise WhatError(self, string)
 
-    def expect_exit(self, exit_code, timeout=None):
+    def expect_exit(self, exit_code=None, timeout=None):
         if timeout is None:
             timeout = self.timeout
 
@@ -58,8 +58,10 @@ class What(Popen):
             if passed > timeout:
                 raise WhatError(self, exit_code)
 
-        if returncode != exit_code:
+        if exit_code is not None and returncode != exit_code:
             raise WhatError(self, exit_code)
+
+        self.wait()
 
 
 class WhatError(Exception):
