@@ -11,9 +11,12 @@ __version__ = '0.2.1'
 class What(Popen):
     """Adapted from: http://stackoverflow.com/a/4896288/242451"""
 
-    def __init__(self, *args):
-        super(What, self).__init__(args, stdout=PIPE, stderr=STDOUT,
-                                   bufsize=0, close_fds=True)
+    def __init__(self, *args, **kwargs):
+        kwargs['stdout'] = PIPE
+        kwargs['stderr'] = STDOUT
+        kwargs['bufsize'] = 0
+        kwargs['close_fds'] = True
+        super(What, self).__init__(args, **kwargs)
         self.timeout = 10
         self.queue = Queue()
         self.lines = RingBuffer(100)
