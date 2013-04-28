@@ -10,11 +10,12 @@ class WhatError(Exception):
         self.output = what_object.get_output()
 
     def __str__(self):
-        return "Expectation is not met\n" \
-               "Expected: %r\n" \
-               "Return code: %r\n" \
-               "Timed out: %r\n" \
+        return "%s\n" \
+               "Expected: %s\n" \
+               "Return code: %s\n" \
+               "Timed out: %s\n" \
                "%s" % (
+               self.message,
                self.expectation,
                self.what.returncode,
                self.timeout,
@@ -26,13 +27,15 @@ class WhatError(Exception):
 
 
 class Timeout(WhatError):
+    message = "Expectation is not met in allowed time period"
+
     def __init__(self, what_object, expected):
         super(Timeout, self).__init__(what_object, expected, timeout=True)
 
 
 class EOF(WhatError):
-    pass
+    message = "End of file is reached while expecting string"
 
 
 class UnexpectedExit(WhatError):
-    pass
+    message = "Unexpected exid code"
