@@ -6,7 +6,7 @@ from subprocess import Popen, PIPE, STDOUT
 from ringbuffer import RingBuffer
 from exceptions import Timeout, EOF, UnexpectedExit
 
-__version__ = '0.4.1'
+__version__ = '0.4.2'
 
 
 class What(Popen):
@@ -31,7 +31,7 @@ class What(Popen):
         kwargs['close_fds'] = True
         super(What, self).__init__(args, **kwargs)
         self.timeout = 10
-        self.queue = Queue()
+        self.queue = Queue(self.BUFFER_SIZE)
         self.lines = RingBuffer(self.BUFFER_SIZE)
         self.reader = Thread(target=self._enqueue_output)
         self.reader.daemon = True
