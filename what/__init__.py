@@ -55,6 +55,7 @@ class What(Popen):
                 passed = time() - start
                 line = self.queue.get(timeout=timeout - passed)
                 if line is EOF:
+                    self.wait()
                     raise EOF(self, string)
                 if string in line:
                     return line
