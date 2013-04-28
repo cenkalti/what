@@ -15,20 +15,18 @@ Installing
 Usage
 -----
 
-.. code-block:: python
+.. code-block:: pycon
 
     >>> from what import What
     >>> w = What('echo', 'hello world')
     >>> w.expect('hello')
     'hello world'
     >>> w.expect('unicorns', timeout=1)
-    Traceback (most recent call last):
-      File "<stdin>", line 1, in <module>
-      File "/Users/cenk/projects/what/what/__init__.py", line 46, in expect
-        raise WhatError(self, string)
-    what.WhatError:
-    Expected: 'unicorns'
-    Found: None
+    >>> # ... tracback here ...
+    what.exceptions.EOF: End of file is reached while expecting string
+    Expected: unicorns
+    Return code: 0
+    Timed out: False
     Last 100 lines:
     ======================================================================
     hello world
