@@ -6,7 +6,7 @@ from subprocess import Popen, PIPE, STDOUT
 from ringbuffer import RingBuffer
 from exceptions import Timeout, EOF, UnexpectedExit
 
-__version__ = '0.4.2'
+__version__ = '0.4.3'
 
 
 class What(Popen):
