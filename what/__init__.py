@@ -53,10 +53,15 @@ class What(Popen):
         try:
             while 1:
                 passed = time() - start
-                line = self.queue.get(timeout=timeout - passed)
+                get_timeout = timeout - passed
+                if get_timeout < 0:
+                    raise Timeout(self, string)
+
+                line = self.queue.get(timeout=get_timeout)
                 if line is EOF:
                     self.wait()
                     raise EOF(self, string)
+
                 if string in line:
                     return line
         except Empty:
