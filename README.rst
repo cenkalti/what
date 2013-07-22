@@ -31,3 +31,9 @@ Usage
     ======================================================================
     hello world
     >>> w.expect_exit(0)
+
+
+Changes
+-------
+
+* 0.4.4: Changed WhatError to inherit from AssertionError in order to be compatible with unittest.
