@@ -1,4 +1,4 @@
-class WhatError(Exception):
+class WhatError(AssertionError):
     """Base class for What exceptions."""
 
     def __init__(self, what_object, expected, timeout=False):
