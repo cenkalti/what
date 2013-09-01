@@ -2,9 +2,10 @@ from __future__ import absolute_import
 
 from time import time
 from threading import Thread
-from .six.moves import queue
 from subprocess import Popen, PIPE, STDOUT
 
+from .six import PY3
+from .six.moves import queue
 from .ringbuffer import RingBuffer
 from .exceptions import Timeout, EOF, UnexpectedExit
 
@@ -100,6 +101,8 @@ class What(Popen):
     def _enqueue_output(self):
         """Thread target of self.reader."""
         for line in iter(self.stdout.readline, b''):
+            if PY3:
+                line = line.decode('utf-8')
             line = line.rstrip('\n')
             self.queue.put(line)
             self.lines.append(line)
