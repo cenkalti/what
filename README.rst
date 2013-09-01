@@ -1,6 +1,9 @@
 What
 ====
 
+.. image:: https://travis-ci.org/cenkalti/what.png
+   :target: https://travis-ci.org/cenkalti/what
+
 A helper for testing output of a process in tests.
 
 
