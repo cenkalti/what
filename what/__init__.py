@@ -1,10 +1,12 @@
+from __future__ import absolute_import
+
 from time import time
 from threading import Thread
-from Queue import Queue, Empty
+from .six.moves import queue
 from subprocess import Popen, PIPE, STDOUT
 
-from ringbuffer import RingBuffer
-from exceptions import Timeout, EOF, UnexpectedExit
+from .ringbuffer import RingBuffer
+from .exceptions import Timeout, EOF, UnexpectedExit
 
 __version__ = '0.4.4'
 
@@ -31,7 +33,7 @@ class What(Popen):
         kwargs['close_fds'] = True
         super(What, self).__init__(args, **kwargs)
         self.timeout = 10
-        self.queue = Queue(self.BUFFER_SIZE)
+        self.queue = queue.Queue(self.BUFFER_SIZE)
         self.lines = RingBuffer(self.BUFFER_SIZE)
         self.reader = Thread(target=self._enqueue_output)
         self.reader.daemon = True
@@ -64,7 +66,7 @@ class What(Popen):
 
                 if string in line:
                     return line
-        except Empty:
+        except queue.Empty:
             raise Timeout(self, string)
 
     def expect_exit(self, exit_code=None, timeout=None):
