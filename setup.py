@@ -1,4 +1,3 @@
-# coding=utf-8
 import os
 import re
 from setuptools import setup
@@ -20,7 +19,7 @@ def get_version():
 setup(
     name='What',
     version=get_version(),
-    author=u'Cenk Altı',
+    author='Cenk Alti',
     author_email='cenkalti@gmail.com',
     keywords='unittest process subprocess',
     url='http://github.com/cenkalti/what',
