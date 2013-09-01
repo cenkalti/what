@@ -36,4 +36,5 @@ Usage
 Changes
 -------
 
+* 0.5.0: Add support for Python 3.
 * 0.4.4: Changed WhatError to inherit from AssertionError in order to be compatible with unittest.

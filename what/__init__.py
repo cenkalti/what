@@ -9,7 +9,7 @@ from .six.moves import queue
 from .ringbuffer import RingBuffer
 from .exceptions import Timeout, EOF, UnexpectedExit
 
-__version__ = '0.4.4'
+__version__ = '0.5.0'
 
 
 class What(Popen):
