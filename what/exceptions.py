@@ -38,4 +38,4 @@ class EOF(WhatError):
 
 
 class UnexpectedExit(WhatError):
-    message = "Unexpected exid code"
+    message = "Unexpected exit code"
